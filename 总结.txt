@@ -1,0 +1,21 @@
+1.通过activity启动service，activity中定义一个动态的广播，用于更新UI
+
+2.service启动后，通过创建指定文件夹，之后创建File，将file转为RandomAccessFile从而可以随机读写文件（通过网络获取文件的长度，初始化RandomAccessFile的长度），通过handler发送创建成功的状态；
+
+3.创建数据库，用于记录下载的进度，要记录下载的子线程的id和下载的url以及已下载的长度  
+
+4.新建下载子线程，首先判断数据库中是否存在该下载进度的数据，没有新建一个线程信息（插入数据库），有的话取出，
+  然后将该信息传入到下载子线程中，计算文件下载开始的位置start +=数据库中的finish的长度，，
+   通过RandomAccessFile的seek指定到文件存入的位置
+  然后开始网络连接，通过setRequestProperty("Ranger","bytes="+start+"-"+"end")；设置网络从哪里下载
+  此时网络连接返回值为206  不是200。网络连接成功后通过conn.inputstream.read(byte[])获取到文件的下载长度，将finish累加
+  定时发送一个动态的广播；
+
+5.定义一个静态布尔变量,用于控制是否暂停，如果activity点击暂停，则通过service接受的暂停的信息，控制这个静态变量的值，从而中断下载。
+  中断下载的过程中，要将下载的长度更新到数据库中；下载完成了数据库清除该条记录。
+
+6.在service中接收到RandomAccessFile创建成功的之后就开启子线程就行下载。。。。。
+
+
+ 
+
